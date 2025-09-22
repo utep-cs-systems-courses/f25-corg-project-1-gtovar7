@@ -1,0 +1,10 @@
+#include <stdio.h>
+
+int main(){
+  char interface[50];
+  printf(">");
+  scanf("%s\n", &interface);
+  printf("%s\n", interface);
+  return 0;
+}
+  
