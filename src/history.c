@@ -1,34 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include "tokenizer.h"
 #include "history.h"
 
 
 
-History *init_history() {
-  History *h = (History *)malloc(sizeof(History));
-  h->head = NULL;
-  h->size = 0;
-  return h;
+List *init_history() {
+  List *list = (List *)malloc(sizeof(List)); //Memory allocation of new list
+  list->root = NULL;
+  // list->size = 0;
+  return list;
 }
 
 
 
-void add_history(History *h, char *str) {
-  Item *newItem = (Item *)malloc(sizeof(Item));
-  newItem->id = h->size + 1;
-  newItem->str = strdup(str);
-  newItem->next = h->head;
-  h->head = newItem;
-  h->size++;
+void add_history(List *list, char *str) {
+  Item *item = (Item *)malloc(sizeof(Item)); //Memory allocation of new item
+  if(list->root == NULL){
+    item->id = 1;
+  } else {
+    Item *curr = list->root;
+    while(curr->next != NULL){
+      curr = curr->next;
+    }
+    item->id = curr->id + 1;
+  }
+
+  int strLength = 0;
+  while(str[strLength]!= '\0'){//gets the length of the string
+    strLength++;
+  }
+  item->str = copy_str(str,strLength);  //copies the string
+  item->next = NULL;
+  
+  if(list->root == NULL){
+    list->root = item;
+  } else {
+    Item *curr = list->root;
+    while(curr->next != NULL){
+      curr = curr->next;
+    }
+    curr->next = item;
+  }
 }
 
 
 
-char *get_history(History *h, int id) {
-  Item *curr = h->head;
+char *get_history (List *list, int id) {
+  Item *curr = list->root;
   while (curr) {
-    if (curr->id == id) return curr->str;
+    if (curr->id == id) return curr->str; //loops until it matches id
     curr = curr->next;
   }
   return NULL;
@@ -36,8 +57,8 @@ char *get_history(History *h, int id) {
 
 
 
-void print_history(History *h) {
-  Item *curr = h->head;
+void print_history(List *list) {
+  Item *curr = list->root;
   while (curr) {
     printf("%d: %s\n", curr->id, curr->str);
     curr = curr->next;
@@ -45,13 +66,13 @@ void print_history(History *h) {
 }
 
 
-void free_history(History *h) {
-  Item *curr = h->head;
+void free_history(List *list) {
+  Item *curr = list->root;
   while (curr) {
     Item *tmp = curr;
     curr = curr->next;
     free(tmp->str);
     free(tmp);
   }
-  free(h);
+  free(list);
 } 

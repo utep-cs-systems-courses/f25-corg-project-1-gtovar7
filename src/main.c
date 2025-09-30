@@ -1,39 +1,40 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "tokenizer.h"
 #include "history.h"
 
-
+int str_equal(const char *a, const char *b);
+void remove_newline(char *s);
 
 int main() {
-  History *history = init_history();
+  List *list = init_history();
   char input[256];
   
-  printf("Simple Tokenizer. Type 'exit' to quit.\n");
+  puts("Started Program");
 
+  while(1){
+    printf(">");
+    fflush(stdout);
 
+    if((fgets(input, sizeof(input), stdin)) == NULL){
+      break;
+    }
 
-  while (1) {
-    printf("> ");
-    if (!fgets(input, sizeof(input), stdin)) break;
-    input[strcspn(input, "\n")] = '\0'; // strip newline
+    remove_newline(input);
+    if(str_equal(input, "exit")){
+      break;
+    }
 
-    if (strcmp(input, "exit") == 0) break;
-    if (strcmp(input, "history") == 0) {
-      print_history(history);
+    if(str_equal(input, "history")){
+      print_history(list);
       continue;
     }
 
-
-
-    // recall from history (!id)
-
     if (input[0] == '!') {
       int id = atoi(&input[1]);
-      char *cmd = get_history(history, id);
+      char *cmd = get_history(list, id);
       if (cmd) {
-	printf("Recalled: %s\n", cmd);
+	printf("Token: %s\n", cmd);
 	char **tokens = tokenize(cmd);
 	print_tokens(tokens);
 	free_tokens(tokens);
@@ -43,14 +44,34 @@ int main() {
       continue;
     }
 
-    add_history(history, input);
+    add_history(list, input);
 
     char **tokens = tokenize(input);
     print_tokens(tokens);
     free_tokens(tokens);
   }
 
-  free_history(history);
+  free_history(list);
   return 0;
+}
+
+int str_equal(const char *a, const char*b){
+  int i = 0;
+  while(a[i] && b[i]){
+    if(a[i] != b[i]){
+      return 0;
+    }
+    i++;
+  }
+  return (a[i] == '\0' && b[i] == '\0');
+}
+
+void remove_newline(char *s){
+  for(int i = 0; s[i] != '\0'; i++){
+    if(s[i] == '\n'){
+      s[i] = '\0';
+      break;
+    }
+  }
 }
       
